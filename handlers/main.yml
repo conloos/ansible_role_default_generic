@@ -1,0 +1,8 @@
+---
+- name: installed messages
+  debug:
+    msg: The packages are installed
+
+- name: recreate DBs
+  debug:
+    msg: Recreating DB Hashes

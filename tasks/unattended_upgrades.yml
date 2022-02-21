@@ -1,0 +1,31 @@
+---
+- name: install unattended-upgrades
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - unattended-upgrades
+  when: ansible_os_family == 'Debian'
+
+- name: fail if wrong distribution
+  fail: 
+    msg: "The Distribution: {{ ansible_distribution }} is not supported, please extend this ansible-script or confirme it works on this distribution."
+  when: ansible_os_family != 'Debian'
+
+- name: copy config
+  template:
+    src: "{{item.src}}"
+    dest: "/etc/apt/apt.conf.d/{{item.dest}}"
+    trim_blocks: true
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - {src: 'templates/unattended_upgrades_20auto-upgrades.j2', dest: '20auto-upgrades'}
+    - {src: 'templates/unattended_upgrades_50unattended-upgrades.j2', dest: '50unattended-upgrades'}
+...

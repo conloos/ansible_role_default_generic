@@ -1,0 +1,9 @@
+---
+- name: write 10-my-sshd-settings.conf
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/10-my-sshd-settings.conf
+    line: IgnoreRhosts yes
+    create: yes
+    owner: root
+    group: root
+    mode: '0644'

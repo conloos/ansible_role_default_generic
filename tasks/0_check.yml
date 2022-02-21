@@ -1,0 +1,12 @@
+---
+- name: Verify that required parameters are set
+  assert:
+    that:
+      - '{{ item }} is defined'
+      - '{{ item }} | length > 0'
+  with_items:
+    - tls_cert_contact
+    - ca.fqdn
+    - ca.url
+    - ca.fingerprint
+...

@@ -1,0 +1,17 @@
+---
+- name: ensure basic packages installed on linux
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - vim
+    - acl
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: ansible_os_family == 'Debian'
+...

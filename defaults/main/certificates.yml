@@ -1,0 +1,22 @@
+---
+ca_url: "{{ ca.url }}"
+ca_fingerprint: "{{ ca.fingerprint }}"
+step_acme_cert_ca_provisioner: acme
+cloudinit_fqdn: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
+skip_cert_if_ca_down: false
+
+tls_cert_certfile:
+  path: "/etc/ssl/{{ cloudinit_fqdn }}.crt"
+  owner: root
+  group: root
+  mode: "644"
+tls_cert_keyfile:
+  path: "/etc/ssl/{{ cloudinit_fqdn }}.key"
+  owner: root
+  group: root
+  mode: "640"
+
+tls_cert_webroot_path: ""
+#tls_cert_contact: ""
+tls_cert_reload_services: []
+...

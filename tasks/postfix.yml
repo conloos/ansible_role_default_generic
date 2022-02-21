@@ -1,0 +1,63 @@
+---
+- name: install postfix
+  notify: installed messages
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - postfix
+    - libsasl2-modules
+    - mailutils
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: ansible_os_family == 'Debian'
+
+- name: copy files
+  template:
+    src: "templates/postfix_{{ item }}.j2"
+    dest: "{{ POSTFIX_CONF_DIR }}/{{item}}"
+    trim_blocks: true
+    owner: root
+    group: root
+    mode: 0644
+  register: postfix_config_result
+  with_items:
+    - main.cf
+    - aliases
+    - sender_canonical
+
+- name: copy passwordfile
+  template:
+    src: "templates/postfix_{{ item }}.j2"
+    dest: "{{ POSTFIX_CONF_DIR }}/{{ item }}"
+    trim_blocks: true
+    owner: root
+    group: root
+    mode: 0600
+  register: postfix_config_result
+  with_items:
+    - sasl_password
+
+- name: create hash DBs
+  shell: /usr/sbin/postmap {{ POSTFIX_CONF_DIR }}/{{ item }}
+  with_items:
+    - main.cf
+    - aliases
+    - sender_canonical
+    - sasl_password
+  notify: recreate DBs
+  when: postfix_config_result.changed 
+
+- name: ensure postfix is running
+  service: name=postfix state=restarted enabled=yes
+  when: postfix_config_result.changed
+
+- name: send testmail
+  shell: echo "Dies ist ein Testmail von {{ ansible_fqdn }}" | mail -s "Testbetreff" frank.dornheim@posteo.de
+  when: postfix_config_result.changed
+...
