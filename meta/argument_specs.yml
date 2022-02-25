@@ -3,58 +3,47 @@ argument_specs:
     short_description: Main entrypoint
     options:
       ca_url:
-        type: url
+        type: str
         default: "{{ ca.url }}"
-        required: yes
         description: URL to the small step CA.
       ca_fingerprint:
         type: str
         default: "{{ ca.fingerprint }}"
-        required: yes
         description: Fingerprint of the CA root cert
       step_acme_cert_ca_provisioner:
         type: str
         default: acme
-        required: no
         description: Name of the default provisioner.
       cloudinit_fqdn:
         type: str
         default: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
-        required: yes
         description: FQDN of the system.
       skip_cert_if_ca_down:
         type: bool
         default: false
-        required: no
         description: If the CA is down, no certificate can be issued. This switch can be used to specify whether a warning is issued and the role continues anyway, or whether the run is aborted. 
       tls_cert_certfile:
         type: path
         default: "/etc/ssl/{{ cloudinit_fqdn }}.crt"
-        required: no
         description: Path and owner/group to store the certfile.
       tls_cert_keyfile:
         type: path
         default: "/etc/ssl/{{ cloudinit_fqdn }}.key"
-        required: no
         description: Path and owner/group to store the keyfile.
       tls_cert_webroot_path:
         type: str
         default: ""
-        required: no
         description: Path to the webroot for ACME, or empty for standalone mode.
       tls_cert_reload_services:
         type: list
         elements: str
         default: []
-        required: no
         description: Reload or restart these systemd services after a cert renewa
       POSTFIX_CONF_DIR:
         type: path
         default: "/etc/postfix"
-        required: no
         description: Path to postfix configuration.
       tls_cert_contact:
-        type: email
-        required: yes
+        type: str
         default: "{{ ca['tls_cert_contact'] }}"
         description: Email-address for the cert contact.
