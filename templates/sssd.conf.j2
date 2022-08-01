@@ -1,0 +1,40 @@
+[nss]
+  filter_groups = root
+  filter_users = root
+  reconnection_retries = 3
+
+[sssd]
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=886483
+  services = nss, pam, sudo
+  config_file_version = 2
+  domains = {{ samba.realm | lower }}
+  default_domain_suffix = {{ samba.realm }}
+
+[pam]
+  reconnection_retries = 3
+
+[sudo]
+  debug_level = 10
+
+[domain/{{ samba.realm | lower }}]
+  id_provider = ad
+  sudo_provider = ad
+  access_provider = ad
+  auth_provider = ad
+  default_shell = /bin/bash
+  ad_domain = {{ samba.realm | lower }}
+  chpass_provider = ad
+  ldap_schema = ad
+  krb5_store_password_if_offline = True
+  cache_credentials = True
+  krb5_realm = BODOMOS.LAN
+  realmd_tags = manages-system joined-with-adcli
+  fallback_homedir = /home/%u@%d
+  use_fully_qualified_names = True
+  ldap_id_mapping = True
+  ad_gpo_access_control = permissive
+  dyndns_update = true
+  dyndns_refresh_interval = 43200
+  dyndns_update_ptr = true
+  dyndns_ttl = 3600
+  krb5_validate = True

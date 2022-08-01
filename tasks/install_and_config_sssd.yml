@@ -1,0 +1,48 @@
+---
+- name: install and configure sssd
+  block:
+  - name: install packages sssd
+    ansible.builtin.apt:
+      name: '{{ item }}'
+      state: present
+      update_cache: true
+    register: apt_status
+    until: apt_status is success
+    delay: 6
+    retries: 10
+    with_items:
+      - sssd
+      - libsss-sudo
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+    when: ansible_os_family == 'Debian'
+
+  - name: copy sssd.conf
+    ansible.builtin.template:
+      src: sssd.conf.j2
+      dest: /etc/sssd/sssd.conf
+      owner: root
+      group: root
+      mode: '0600'
+
+  - name: enable pam mkhomedir
+    ansible.builtin.shell:
+      cmd: pam-auth-update --enable mkhomedir
+
+  - name: restart services
+    block:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Restart sssd
+      ansible.builtin.systemd:
+        name: '{{ item }}'
+        state: restarted
+        enabled: yes
+        masked: no
+        daemon_reload: yes
+      when: "item in services"
+      with_items:
+        - sssd
+  when: hostvars['localhost']['samba'] is not defined
+...

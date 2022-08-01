@@ -6,7 +6,6 @@ Look in the tasks directory for each configuration.
 All configurations are held atomically via their own files. 
 
 ## Variables that have to be defined
-First look at tasks/0_check.yml
 
 | variable | description |
 | -------- | ----------- |
