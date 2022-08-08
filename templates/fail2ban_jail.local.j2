@@ -1,0 +1,10 @@
+[sshd]
+enabled   = true
+maxretry  = 6
+findtime  = 3600 # 1 hour
+bantime   = 1800 # 30 minutes 
+ignoreip  = 127.0.0.1/8
+
+action = %(action_mwl)s
+destemail = "{{ postfix.postfix_email_admin }}"
+sender = "root@{{ hostvars['localhost']['cloudinit_fqdn'] }}"

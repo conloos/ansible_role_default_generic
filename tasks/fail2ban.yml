@@ -1,0 +1,42 @@
+---
+- name: install packages fail2ban
+  # packagelist from '~# realm -v discover'
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - fail2ban
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: ansible_os_family == 'Debian'
+
+- name: copy template
+  template:
+    src: fail2ban_jail.local.j2
+    dest: "/etc/fail2ban/jail.local"
+    trim_blocks: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: restart services
+  block:
+  - name: Populate service facts
+    ansible.builtin.service_facts:
+
+  - name: Restart fail2ban
+    ansible.builtin.systemd:
+      name: '{{ item }}'
+      state: restarted
+      enabled: yes
+      masked: no
+      daemon_reload: yes
+    when: "item in services"
+    with_items:
+      - fail2ban
+...
