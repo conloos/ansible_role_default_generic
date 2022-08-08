@@ -6,5 +6,5 @@ bantime   = 1800 # 30 minutes
 ignoreip  = 127.0.0.1/8
 
 action = %(action_mwl)s
-destemail = "{{ postfix.postfix_email_admin }}"
+destemail = "{{ postfix_srv.admin_user }}"
 sender = "root@{{ hostvars['localhost']['cloudinit_fqdn'] }}"

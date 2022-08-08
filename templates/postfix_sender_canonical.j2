@@ -1,5 +1,5 @@
 {% if ansible_domain %}
-root@{{ ansible_domain }} {{ postfix.postfix_smtp_username }}
+root@{{ ansible_domain }} {{ postfix_srv.smtp_username }}
 {% endif %}
-root {{ postfix.postfix_smtp_username }}
+root {{ postfix_srv.smtp_username }}
 
