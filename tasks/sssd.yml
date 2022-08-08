@@ -1,0 +1,89 @@
+---
+- name: install packages sssd
+  # packagelist from '~# realm -v discover'
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - sssd
+    - sssd-ad
+    - sssd-tools
+    - libsss-sudo
+    - libpam-sss
+    - realmd
+    - adcli
+    - samba-common-bin
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: ansible_os_family == 'Debian'
+
+  # discover realm if not provided
+- name: autodiscover realm if not provided
+  block:
+  - name: discover realm
+    ansible.builtin.shell:
+      cmd: "/usr/sbin/realm discover"
+    changed_when: False
+    register: discovered_realm
+
+  - name: display discovered realm
+    ansible.builtin.debug:
+      msg: "Discovered REALM: {{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=True) | trim | split(' ') | last }}"
+
+  - name: set discovered realm
+    ansible.builtin.set_fact:
+      realm: "{{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=True) | trim | split(' ') | last }}"
+    when: realm is not defined
+
+- name: unjoin if system allready joined
+  block:
+    - name: check if server is joined
+      ansible.builtin.shell:
+        cmd: realm list
+      changed_when: False
+      register: join_check_output
+
+    - name: "leave realm: {{ realm }}"
+      ansible.builtin.shell:
+        cmd: "echo {{ vault_samba.administrator_password }} | realm leave -U {{ vault_samba.administrator_user }} {{ realm }}"
+      no_log: True
+      when:  join_check_output.stdout | length > 0
+
+- name: "join realm: {{ realm }}"
+  ansible.builtin.shell:
+    cmd: "echo {{ vault_samba.administrator_password }} | realm join -U {{ vault_samba.administrator_user }} {{ realm }}"
+  no_log: True
+
+- name: copy sssd.conf
+  ansible.builtin.template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: enable pam mkhomedir
+  ansible.builtin.shell:
+    cmd: pam-auth-update --enable mkhomedir
+
+- name: restart services
+  block:
+  - name: Populate service facts
+    ansible.builtin.service_facts:
+
+  - name: Restart sssd
+    ansible.builtin.systemd:
+      name: '{{ item }}'
+      state: restarted
+      enabled: yes
+      masked: no
+      daemon_reload: yes
+    when: "item in services"
+    with_items:
+      - sssd
+...

@@ -1,0 +1,41 @@
+---
+- name: Set SSH loglevel to verbose
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#LogLevel INFO'
+    line: 'LogLevel VERBOSE'
+
+- name: Disable SSH root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#PermitRootLogin'
+    line: 'PermitRootLogin no'
+
+- name: Enable SSH password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+
+- name: Set SSH UsePrivilegeSeparation
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: 'UsePrivilegeSeparation sandbox'
+
+- name: restart services
+  block:
+  - name: Populate service facts
+    ansible.builtin.service_facts:
+
+  - name: Restart sshd
+    ansible.builtin.systemd:
+      name: '{{ item }}'
+      state: restarted
+      enabled: yes
+      masked: no
+      daemon_reload: yes
+    when: "item in services"
+    with_items:
+      - sshd
+...
