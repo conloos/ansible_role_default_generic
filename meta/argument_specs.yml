@@ -2,25 +2,29 @@ argument_specs:
   main:
     short_description: Main entrypoint
     options:
+      cloudinit_fqdn:
+        type: str
+        default: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
+        description: FQDN of the system.
+      POSTFIX_CONF_DIR:
+        type: path
+        default: "/etc/postfix"
+        description: Path to postfix configuration.
       ca_url:
         type: str
-        default: "{{ ca.url }}"
+        default: False
         description: URL to the small step CA.
       ca_fingerprint:
         type: str
-        default: "{{ ca.fingerprint }}"
+        default: False
         description: Fingerprint of the CA root cert
       step_acme_cert_ca_provisioner:
         type: str
         default: acme
         description: Name of the default provisioner.
-      cloudinit_fqdn:
-        type: str
-        default: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
-        description: FQDN of the system.
       skip_cert_if_ca_down:
         type: bool
-        default: false
+        default: False
         description: If the CA is down, no certificate can be issued. This switch can be used to specify whether a warning is issued and the role continues anyway, or whether the run is aborted. 
       tls_cert_certfile:
         type: path
@@ -39,11 +43,8 @@ argument_specs:
         elements: str
         default: []
         description: Reload or restart these systemd services after a cert renewa
-      POSTFIX_CONF_DIR:
-        type: path
-        default: "/etc/postfix"
-        description: Path to postfix configuration.
       tls_cert_contact:
         type: str
-        default: "{{ ca['tls_cert_contact'] }}"
+        default: ""
         description: Email-address for the cert contact.
+

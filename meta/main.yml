@@ -13,4 +13,5 @@ galaxy_info:
         - 21.10
   galaxy_tags: []
 dependencies:
-  - maxhoesel.smallstep.step_bootstrap_host
+  - role: maxhoesel.smallstep.step_bootstrap_host
+    when: ca is defined and ca.url|bool

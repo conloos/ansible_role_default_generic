@@ -8,4 +8,5 @@
     step_acme_cert_webroot_path: "{{ tls_cert_webroot_path }}"
     step_acme_cert_contact: "{{ tls_cert_contact }}"
     step_acme_cert_renewal_reload_services: "{{ tls_cert_reload_services }}"
+  when: ca is defined and ca.url|bool
 ...
