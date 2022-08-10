@@ -20,7 +20,7 @@
 - name: copy files
   template:
     src: "templates/postfix_{{ item }}.j2"
-    dest: "{{ POSTFIX_CONF_DIR }}/{{item}}"
+    dest: "{{ postfix_conf_dir }}/{{item}}"
     trim_blocks: true
     owner: root
     group: root
@@ -34,7 +34,7 @@
 - name: copy passwordfile
   template:
     src: "templates/postfix_{{ item }}.j2"
-    dest: "{{ POSTFIX_CONF_DIR }}/{{ item }}"
+    dest: "{{ postfix_conf_dir }}/{{ item }}"
     trim_blocks: true
     owner: root
     group: root
@@ -44,7 +44,7 @@
     - sasl_password
 
 - name: create hash DBs
-  shell: /usr/sbin/postmap {{ POSTFIX_CONF_DIR }}/{{ item }}
+  shell: /usr/sbin/postmap {{ postfix_conf_dir }}/{{ item }}
   with_items:
     - main.cf
     - aliases
