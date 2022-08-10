@@ -1,49 +1,76 @@
 argument_specs:
   main:
-    short_description: Main entrypoint
+    # https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html#role-argument-validation
+    # https://docs.ansible.com/ansible/latest/dev_guide/developing_program_flow_modules.html#argument-spec
+    short_description: sets default configuration at server and clients
+    description: sets default configuration at server and clients
+    author:
+      - Frank Dornheim
     options:
       cloudinit_fqdn:
         type: str
         default: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
         description: FQDN of the system.
-      POSTFIX_CONF_DIR:
+      postfix_conf_dir:
         type: path
         default: "/etc/postfix"
         description: Path to postfix configuration.
-      ca_url:
+      ntp_fqdn:
+        type: str
+        default: "pool.ntp.org"
+        description: Set NTP-Server
+      sssd_permitted_users:
+        type: str
+        description: List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login.
+      sssd_permitted_groups:
+        type: str
+        description: List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login.
+      sudo_users:
+        type: str
+        description: Add (AD) user to /etc/sudoers.d/<USERNAME>.
+      sudo_groups:
+        type: str
+        description: Add (AD) group to /etc/sudoers.d/<GROUPNAME>.
+      sshd_allowgroups:
+        type: str
+        description: Space separated list of groups allowed to connect to the server.
+      crt:downloard_url:
+        type: str
+        description: URL to the Zip of Certificates to import.
+      acme_ca_url:
         type: str
         default: False
         description: URL to the small step CA.
-      ca_fingerprint:
+      acme_ca_fingerprint:
         type: str
         default: False
         description: Fingerprint of the CA root cert
-      step_acme_cert_ca_provisioner:
+      acme_step_acme_cert_ca_provisioner:
         type: str
-        default: acme
+        default: "acme"
         description: Name of the default provisioner.
-      skip_cert_if_ca_down:
+      acme_skip_cert_if_ca_down:
         type: bool
         default: False
         description: If the CA is down, no certificate can be issued. This switch can be used to specify whether a warning is issued and the role continues anyway, or whether the run is aborted. 
-      tls_cert_certfile:
+      acme_tls_cert_certfile:
         type: path
         default: "/etc/ssl/{{ cloudinit_fqdn }}.crt"
         description: Path and owner/group to store the certfile.
-      tls_cert_keyfile:
+      acme_tls_cert_keyfile:
         type: path
         default: "/etc/ssl/{{ cloudinit_fqdn }}.key"
         description: Path and owner/group to store the keyfile.
-      tls_cert_webroot_path:
+      acme_tls_cert_webroot_path:
         type: str
         default: ""
         description: Path to the webroot for ACME, or empty for standalone mode.
-      tls_cert_reload_services:
+      acme_tls_cert_reload_services:
         type: list
         elements: str
         default: []
         description: Reload or restart these systemd services after a cert renewa
-      tls_cert_contact:
+      acme_tls_cert_contact:
         type: str
         default: ""
         description: Email-address for the cert contact.
