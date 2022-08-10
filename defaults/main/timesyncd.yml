@@ -1,2 +1,1 @@
-ntp:
-  fqdn: "pool.ntp.org"
+ntp_fqdn: "pool.ntp.org"
