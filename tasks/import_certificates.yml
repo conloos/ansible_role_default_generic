@@ -1,0 +1,34 @@
+---
+- name: copy Certificates as zip in local certificate store
+  block:
+    - name: Create temp directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: temp
+      register: tempfilepath
+
+    - name: Download Certificate ZIP
+      ansible.builtin.get_url:
+        url: '{{ crt_downloard_url }'
+        dest: "{{ tempfilepath.path }}/crt.zip"
+        mode: '0400'
+
+    - name: Extract crt.zip into /usr/local/share/ca-certificates
+      ansible.builtin.unarchive:
+        src: "{{ tempfilepath.path }}/crt.zip"
+        dest: /usr/local/share/ca-certificates
+        group: root
+        user: root
+        mode: '0644'
+
+    - name: update-ca-certificates
+      ansible.builtin.shell:
+        cmd: "/usr/sbin/update-ca-certificates"
+
+  always:
+    - name: cleanup temp
+      ansible.builtin.file:
+        path: "{{ tempfilepath.path }}"
+        state: absent
+  when: crt_downloard_url is defined and crt_downloard_url|length>0
+...
