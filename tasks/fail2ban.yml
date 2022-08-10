@@ -15,11 +15,19 @@
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'
 
-- name: copy template
-  template:
+- name: copy jail template
+  ansible.builtin.template:
     src: fail2ban_jail.local.j2
     dest: "/etc/fail2ban/jail.local"
     trim_blocks: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: copy sendmail-common.local to prevent emails about starting and stopping fail2ban
+  ansible.builtin.copy:
+    src: sendmail-common.local
+    dest: /etc/fail2ban/action.d/sendmail-common.local
     owner: root
     group: root
     mode: '0644'
@@ -38,5 +46,5 @@
       daemon_reload: yes
     when: "item in services"
     with_items:
-      - fail2ban
+      - fail2ban.service
 ...
