@@ -1,0 +1,31 @@
+---
+- name: Check virtualisation
+  ansible.builtin.fail:
+    msg: "This system appears to be virtualized, so the time sync may be buggy or not - readily - functional. 
+          With containers, the time is specified by the host.
+          With virtualization, you may need special client programs, such as: vmware tools.
+          This task must be completed separately."
+  ignore_errors: True
+  when: ansible_virtualization_role == "guest"
+
+- name: copy timesyncd.conf
+  ansible.builtin.template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Populate service facts
+  service_facts:
+
+- name: Make sure timesyncd is started
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+  with_items:
+    - systemd-timesyncd
+...
