@@ -11,6 +11,8 @@
   with_items:
     - vim
     - acl
+    - clamav
+    - clamav-daemon
   environment:
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'
