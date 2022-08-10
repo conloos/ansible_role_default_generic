@@ -2,26 +2,40 @@
 - name: Set SSH loglevel to verbose
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^#LogLevel INFO'
-    line: 'LogLevel VERBOSE'
+    regexp: "^#LogLevel INFO"
+    line: "LogLevel VERBOSE"
 
 - name: Disable SSH root login
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^#PermitRootLogin'
-    line: 'PermitRootLogin no'
+    regexp: "^#PermitRootLogin"
+    line: "PermitRootLogin no"
+
+- name: Disable empty passwords
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#PermitEmptyPasswords"
+    line: "PermitEmptyPasswords no"
 
 - name: Enable SSH password authentication
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^PasswordAuthentication'
-    line: 'PasswordAuthentication yes'
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication yes"
 
 - name: Set SSH UsePrivilegeSeparation
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
-    line: 'UsePrivilegeSeparation sandbox'
+    line: "UsePrivilegeSeparation sandbox"
+
+- name: set AllowGroups
+  # grupnames with whitspaces are supported´
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: "AllowGroups {{ sshd_allowgroups | map('quote') | join(' ') }}"
+  when: sshd_allowgroups is defined and sshd_allowgroups|length>0
 
 - name: restart services
   block:
@@ -30,12 +44,12 @@
 
   - name: Restart sshd
     ansible.builtin.systemd:
-      name: '{{ item }}'
+      name: "{{ item }}"
       state: restarted
       enabled: yes
       masked: no
       daemon_reload: yes
     when: "item in services"
     with_items:
-      - sshd
+      - sshd.service
 ...
