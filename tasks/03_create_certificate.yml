@@ -1,0 +1,12 @@
+---
+- name: Run step_acme_cert
+  include_role:
+    name: maxhoesel.smallstep.step_acme_cert
+  vars:
+    step_acme_cert_certfile: "{{ acme_tls_cert_certfile }}"
+    step_acme_cert_keyfile: "{{ acme_tls_cert_keyfile }}"
+    step_acme_cert_webroot_path: "{{ acme_tls_cert_webroot_path }}"
+    step_acme_cert_contact: "{{ acme_tls_cert_contact }}"
+    step_acme_cert_renewal_reload_services: "{{ acme_tls_cert_reload_services }}"
+    step_acme_cert_ca_provisioner: "{{ acme_provisioner }}"
+  when: acme_url is defined and acme_url|length>0

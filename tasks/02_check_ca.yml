@@ -1,0 +1,21 @@
+---
+- name: CA Tests 
+  block:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+      register: service_state
+      delegate_to: "{{ acme_fqdn if acme_url is defined and acme_url | length > 0 }}"
+
+    - name: check if ca service is down is a critical error
+      fail:
+        msg: "The CA cannot be reached and no certificate can be issued."
+      when: acme_skip_cert_if_ca_down | bool != true
+      failed_when: service_state.ansible_facts.services['step-ca.service'] is not defined or service_state.ansible_facts.services['step-ca.service']['state'] != 'running'
+
+    - name: Verify that the communication to the bodomos-ca is working
+      command: /usr/bin/step-cli ca health --ca-url {{ acme_url }} --root /etc/step-ca/certs/root_ca.crt
+      changed_when: no
+      delegate_to: "{{ acme_fqdn if acme_url is defined and acme_url | length > 0 }}"
+      when: service_state.ansible_facts.services['step-ca.service'] is defined
+  when: acme_url is defined and acme_url|length > 0
+...
