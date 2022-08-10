@@ -1,26 +1,18 @@
 ---
 cloudinit_fqdn: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
-skip_cert_if_ca_down: False
+acme_skip_cert_if_ca_down: False
 
 # maxhoesel.smallstep.step_bootstrap_host- stuff
-tls_cert_webroot_path: ""
-tls_cert_reload_services: []
-tls_cert_contact: ""
-tls_cert_certfile:
+acme_tls_cert_webroot_path: ""
+acme_tls_cert_reload_services: []
+acme_tls_cert_certfile:
   path: "/etc/ssl/{{ cloudinit_fqdn }}.crt"
   owner: root
   group: root
   mode: "644"
-tls_cert_keyfile:
+acme_tls_cert_keyfile:
   path: "/etc/ssl/{{ cloudinit_fqdn }}.key"
   owner: root
   group: root
   mode: "640"
-
-# 06.08.22 - unsed
-# step_bootstrap_ca_url: "{{ ca.url }}"
-# step_bootstrap_fingerprint: "{{ ca.fingerprint }}"
-# ca_url: "{{ ca.url }}"
-# ca_fingerprint: "{{ ca.fingerprint }}"
-# step_acme_cert_ca_provisioner: acme
 ...

@@ -1,3 +1,3 @@
 ---
-POSTFIX_CONF_DIR: "/etc/postfix"
+postfix_conf_dir: "/etc/postfix"
 ...
