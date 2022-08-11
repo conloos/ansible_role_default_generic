@@ -5,8 +5,8 @@
     state: present
     user: "{{ item }}"
     nopassword: no
-    runas: All
-    commands: All
+    runas: ALL
+    commands: ALL
   with_items: "{{ sudo_users }}"
   when: sudo_users is defined and sudo_users|length>0
 
@@ -16,8 +16,8 @@
     state: present
     group: "{{ item }}"
     nopassword: no
-    runas: All
-    commands: All
+    runas: ALL
+    commands: ALL
   with_items: "{{ sudo_groups }}"
   when: sudo_groups is defined and sudo_groups|length>0
 ...
