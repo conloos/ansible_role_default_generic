@@ -9,4 +9,4 @@
     step_acme_cert_contact: "{{ acme_tls_cert_contact }}"
     step_acme_cert_renewal_reload_services: "{{ acme_tls_cert_reload_services }}"
     step_acme_cert_ca_provisioner: "{{ acme_provisioner }}"
-  when: acme_url is defined and acme_url|length>0
+  when: acme_fqdn is defined and acme_fqdn|length>0

@@ -17,5 +17,5 @@
       changed_when: no
       delegate_to: "{{ acme_fqdn if acme_url is defined and acme_url | length > 0 }}"
       when: service_state.ansible_facts.services['step-ca.service'] is defined
-  when: acme_url is defined and acme_url|length > 0
+  when: acme_fqdn is defined and acme_fqdn|length > 0
 ...
