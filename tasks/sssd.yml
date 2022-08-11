@@ -23,6 +23,7 @@
   when: ansible_os_family == 'Debian'
 
   # discover realm if not provided
+  # The discovery didn't work well ubuntu < 22.04, because differend backports from fedora
 - name: autodiscover realm if not provided
   block:
   - name: discover realm
@@ -38,7 +39,7 @@
   - name: set discovered realm
     ansible.builtin.set_fact:
       realm: "{{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=True) | trim | split(' ') | last }}"
-    when: realm is not defined
+  when: realm is not defined
 
 - name: unjoin if system allready joined
   block:
