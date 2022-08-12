@@ -31,10 +31,11 @@
 
 - name: set AllowGroups
   # grupnames with whitspaces are supported´
+  # add "adm" group by default so every user of group "adm" is allowed to connect
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
-    line: "AllowGroups {{ sshd_allowgroups | map('quote') | join(' ') }}"
+    line: "AllowGroups adm {{ sshd_allowgroups | map('quote') | join(' ') }}"
   when: sshd_allowgroups is defined and sshd_allowgroups|length>0
 
 - name: restart services
