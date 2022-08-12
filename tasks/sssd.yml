@@ -22,9 +22,10 @@
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'
 
+
+- name: autodiscover realm if not provided
   # discover realm if not provided
   # The discovery didn't work well ubuntu < 22.04, because differend backports from fedora
-- name: autodiscover realm if not provided
   block:
   - name: discover realm
     ansible.builtin.shell:
@@ -42,6 +43,7 @@
   when: realm is not defined
 
 - name: unjoin if system allready joined
+  # only unjoin if AD Admin user and PW present
   block:
     - name: check if server is joined
       ansible.builtin.shell:
@@ -55,50 +57,56 @@
       no_log: True
       when:  join_check_output.stdout | length > 0
 
-- name: "join realm: {{ realm }} without sssd_computerou"
-  ansible.builtin.shell:
-    cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join -U {{ vault_AD.administrator_user }} {{ realm }}"
-  no_log: True
-  when: sssd_computerou is not defined or sssd_computerou | length == 0
+  when: vault_samba.administrator_user is defined and vault_samba.administrator_user|length>0
 
-- name: "join realm: {{ realm }} with sssd_computerou"
-  ansible.builtin.shell:
-    cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"
-  no_log: True
-  when: sssd_computerou is defined and sssd_computerou | length > 0
-
-- name: copy sssd.conf
-  ansible.builtin.template:
-    src: sssd.conf.j2
-    dest: /etc/sssd/sssd.conf
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: enable pam mkhomedir
-  ansible.builtin.shell:
-    cmd: pam-auth-update --enable mkhomedir
-
-- name: Set the users and groups who are allowed to log on to the system.
+- name: Join domain an configure sssd
   block:
-    - name: deny all users
+    - name: "join realm: {{ realm }} without sssd_computerou"
       ansible.builtin.shell:
-        cmd: "/usr/sbin/realm deny --all"
+        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join -U {{ vault_AD.administrator_user }} {{ realm }}"
+      no_log: True
+      when: sssd_computerou is not defined or sssd_computerou | length == 0
 
-    - name: add permitted user
-      # usernames with whitespaces are supported
+    - name: "join realm: {{ realm }} with sssd_computerou"
       ansible.builtin.shell:
-        cmd: "/usr/sbin/realm permit '{{ item }}'"
-      with_items: "{{ sssd_permitted_users }}"
-      when: sssd_permitted_users is defined and sssd_permitted_users|length>0
+        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"
+      no_log: True
+      when: sssd_computerou is defined and sssd_computerou | length > 0
 
-    - name: add permitted groups
-      # groups with whitespaces are supported
+    - name: copy sssd.conf
+      ansible.builtin.template:
+        src: sssd.conf.j2
+        dest: /etc/sssd/sssd.conf
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: enable pam mkhomedir
       ansible.builtin.shell:
-        cmd: "/usr/sbin/realm permit -g '{{ item }}'"
-      with_items: "{{ sssd_permitted_groups }}"
-      when: sssd_permitted_groups is defined and sssd_permitted_groups|length>0
-  when: sssd_permitted_users is defined and sssd_permitted_users|length>0 or sssd_permitted_groups is defined and sssd_permitted_groups|length>0
+        cmd: pam-auth-update --enable mkhomedir
+  
+    - name: Set the users and groups who are allowed to log on to the system.
+      block:
+        - name: deny all users
+          ansible.builtin.shell:
+            cmd: "/usr/sbin/realm deny --all"
+
+        - name: add permitted user
+          # usernames with whitespaces are supported
+          ansible.builtin.shell:
+            cmd: "/usr/sbin/realm permit '{{ item }}'"
+          with_items: "{{ sssd_permitted_users }}"
+          when: sssd_permitted_users is defined and sssd_permitted_users|length>0
+
+        - name: add permitted groups
+          # groups with whitespaces are supported
+          ansible.builtin.shell:
+            cmd: "/usr/sbin/realm permit -g '{{ item }}'"
+          with_items: "{{ sssd_permitted_groups }}"
+          when: sssd_permitted_groups is defined and sssd_permitted_groups|length>0
+      when: sssd_permitted_users is defined and sssd_permitted_users|length>0 or sssd_permitted_groups is defined and sssd_permitted_groups|length>0
+  # The whole block shoud only star if a AD Admin User and pw is present
+  when: vault_samba.administrator_user is defined and vault_samba.administrator_user|length>0
 
 - name: restart services
   block:
