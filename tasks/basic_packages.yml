@@ -11,6 +11,7 @@
   with_items:
     - vim
     - acl
+    - python-is-python3 # added by switching to ubuntu 22.04
     - clamav
     - clamav-daemon
   environment:
