@@ -4,7 +4,7 @@
   - name: install postfix
     notify: installed messages
     ansible.builtin.apt:
-      name: '{{ item }}'
+      name: "{{ item }}"
       state: present
       update_cache: true
     register: apt_status
@@ -20,7 +20,7 @@
     when: ansible_os_family == 'Debian'
 
   - name: copy files
-    template:
+    ansible.builtin.template:
       src: "templates/postfix_{{ item }}.j2"
       dest: "{{ postfix_conf_dir }}/{{item}}"
       trim_blocks: true
@@ -34,7 +34,7 @@
       - sender_canonical
 
   - name: copy passwordfile
-    template:
+    ansible.builtin.template:
       src: "templates/postfix_{{ item }}.j2"
       dest: "{{ postfix_conf_dir }}/{{ item }}"
       trim_blocks: true
@@ -46,7 +46,7 @@
       - sasl_password
 
   - name: create hash DBs
-    shell: "/usr/sbin/postmap {{ postfix_conf_dir }}/{{ item }}"
+    ansible.builtin.shell: "/usr/sbin/postmap {{ postfix_conf_dir }}/{{ item }}"
     with_items:
       - main.cf
       - aliases
@@ -56,11 +56,11 @@
     when: postfix_config_result.changed 
 
   - name: ensure postfix is running
-    service: name=postfix state=restarted enabled=yes
+    ansible.builtin.service: name=postfix state=restarted enabled=yes
     when: postfix_config_result.changed
 
   - name: send testmail
-    shell: echo "Dies ist ein Testmail von {{ ansible_fqdn }}" | mail -s "Testbetreff" vault_postfix.admin_user
+    ansible.builtin.shell: echo "Dies ist ein Testmail von {{ ansible_fqdn }}" | mail -s "Testbetreff" vault_postfix.admin_user
     when: postfix_config_result.changed
-  when: vault_postfix is defined 
+  when: vault_postfix.postfix_snmp_relay_host is defined and vault_postfix.postfix_snmp_relay_host|length>0
 ...
