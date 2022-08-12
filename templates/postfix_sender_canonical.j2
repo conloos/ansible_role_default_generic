@@ -1,3 +1,5 @@
+# Ansible manageged. Local modifactions may overwritten.
+
 {% if ansible_domain %}
 root@{{ ansible_domain }} {{ vault_postfix.smtp_username }}
 {% endif %}
