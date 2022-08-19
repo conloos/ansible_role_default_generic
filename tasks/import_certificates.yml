@@ -9,17 +9,15 @@
 
     - name: Download Certificate ZIP
       ansible.builtin.get_url:
-        url: '{{ crt_downloard_url }'
+        url: "{{ crt_zip_download_url }}"
         dest: "{{ tempfilepath.path }}/crt.zip"
         mode: '0400'
 
-    - name: Extract crt.zip into /usr/local/share/ca-certificates
+    - name: Extract /usr/local/share/ca-certificates
       ansible.builtin.unarchive:
         src: "{{ tempfilepath.path }}/crt.zip"
         dest: /usr/local/share/ca-certificates
-        group: root
-        user: root
-        mode: '0644'
+        remote_src: true
 
     - name: update-ca-certificates
       ansible.builtin.shell:
@@ -30,5 +28,5 @@
       ansible.builtin.file:
         path: "{{ tempfilepath.path }}"
         state: absent
-  when: crt_downloard_url is defined and crt_downloard_url|length>0
+  when: crt_zip_download_url is defined and crt_zip_download_url|length>0
 ...

@@ -18,7 +18,7 @@ All configurations are held atomically via their own files.
 ### import certificates
 | variable | required | description | example |
 | -------- | ---------| ----------- | ------- |
-| crt_downloard_url | no | Import certificates as zip and install in system certificate store. | |
+| crt_zip_download_url | no | Import certificates as zip and install in system certificate store. | |
 ### Network Time - timesyncd
 | variable | required | description |
 | -------- | ---------| ----------- |

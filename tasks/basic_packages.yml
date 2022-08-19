@@ -9,10 +9,11 @@
   delay: 6
   retries: 10
   with_items:
-    - vim
     - acl
     - clamav
     - clamav-daemon
+    - unzip
+    - vim
   environment:
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'

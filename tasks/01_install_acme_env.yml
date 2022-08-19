@@ -5,7 +5,5 @@
   vars:
     step_bootstrap_ca_url: "{{ acme_fqdn }}"
     step_bootstrap_fingerprint: "{{ acme_fingerprint }}"
-    # i think ist unused 10.08.22
-    # acme_skip_cert_if_ca_down: True
   when: acme_fqdn is defined and acme_fqdn|length>0
 ...
