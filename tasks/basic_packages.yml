@@ -10,6 +10,7 @@
   retries: 10
   with_items:
     - acl
+    - python-is-python3 # added by switching to ubuntu 22.04
     - clamav
     - clamav-daemon
     - unzip
