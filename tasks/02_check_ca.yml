@@ -9,7 +9,7 @@
     - name: check if ca service is down is a critical error
       fail:
         msg: "The CA cannot be reached and no certificate can be issued."
-      when: acme_skip_cert_if_ca_down | bool != true
+      when: acme_skip_cert_if_ca_down | bool != True
       failed_when: service_state.ansible_facts.services['step-ca.service'] is not defined or service_state.ansible_facts.services['step-ca.service']['state'] != 'running'
 
     - name: Verify that the communication to the bodomos-ca is working

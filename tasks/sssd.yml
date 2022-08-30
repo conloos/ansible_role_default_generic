@@ -4,7 +4,7 @@
   ansible.builtin.apt:
     name: '{{ item }}'
     state: present
-    update_cache: true
+    update_cache: True
   register: apt_status
   until: apt_status is success
   delay: 6
@@ -54,7 +54,7 @@
     - name: "leave realm: {{ realm }}"
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm leave -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: true
+      no_log: True
       when:  join_check_output.stdout | length > 0
   when: vault_AD.administrator_user is defined and vault_AD.administrator_user|length>0
 
@@ -63,13 +63,13 @@
     - name: "join realm: {{ realm }} without sssd_computerou"
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: true
+      no_log: True
       when: sssd_computerou is not defined or sssd_computerou | length == 0
 
     - name: "join realm: {{ realm }} with sssd_computerou"
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: true
+      no_log: True
       when: sssd_computerou is defined and sssd_computerou | length > 0
 
     - name: copy sssd.conf

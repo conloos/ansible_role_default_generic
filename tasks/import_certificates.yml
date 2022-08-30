@@ -17,7 +17,7 @@
       ansible.builtin.unarchive:
         src: "{{ tempfilepath.path }}/crt.zip"
         dest: /usr/local/share/ca-certificates
-        remote_src: true
+        remote_src: True
 
     - name: update-ca-certificates
       ansible.builtin.shell:

@@ -3,7 +3,7 @@
   ansible.builtin.apt:
     name: '{{ item }}'
     state: present
-    update_cache: true
+    update_cache: True
   register: apt_status
   until: apt_status is success
   delay: 6
@@ -21,7 +21,7 @@
   template:
     src: "{{item.src}}"
     dest: "/etc/apt/apt.conf.d/{{item.dest}}"
-    trim_blocks: true
+    trim_blocks: True
     owner: root
     group: root
     mode: 0644
