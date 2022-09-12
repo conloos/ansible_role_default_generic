@@ -12,7 +12,7 @@
       when: acme_skip_cert_if_ca_down | bool != True
       failed_when: service_state.ansible_facts.services['step-ca.service'] is not defined or service_state.ansible_facts.services['step-ca.service']['state'] != 'running'
 
-    - name: Verify that the communication to the bodomos-ca is working
+    - name: Verify that the communication to the ca is working
       command: /usr/bin/step-cli ca health --ca-url {{ acme_url }} --root /etc/step-ca/certs/root_ca.crt
       changed_when: no
       delegate_to: "{{ acme_fqdn if acme_url is defined and acme_url | length > 0 }}"
