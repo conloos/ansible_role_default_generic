@@ -9,4 +9,4 @@ ignoreip  = 127.0.0.1/8
 
 action = %(action_mwl)s
 destemail = "{{ vault_postfix.admin_user }}"
-sender = "root@{{ hostvars['localhost']['cloudinit_fqdn'] }}"
+sender = "root@{{ cloudinit_fqdn }}"
