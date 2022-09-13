@@ -5,5 +5,5 @@
   vars:
     step_bootstrap_ca_url: "{{ acme_fqdn }}"
     step_bootstrap_fingerprint: "{{ acme_fingerprint }}"
-  when: acme_fqdn is defined and acme_fqdn|length>0
+  when: acme_fqdn is defined and acme_fqdn | length > 0
 ...

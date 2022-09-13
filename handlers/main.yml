@@ -1,8 +1,8 @@
 ---
-- name: installed messages
-  debug:
+- name: Installed messages
+  ansible.builtin.debug:
     msg: The packages are installed
 
-- name: recreate DBs
-  debug:
+- name: Recreate DBs
+  ansible.builtin.debug:
     msg: Recreating DB Hashes

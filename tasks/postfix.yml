@@ -1,12 +1,12 @@
 ---
 - name: Configure Postfix
   block:
-    - name: install postfix
+    - name: Install postfix
       notify: installed messages
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
-        update_cache: True
+        update_cache: true
       register: apt_status
       until: apt_status is success
       delay: 6
@@ -19,11 +19,11 @@
         DEBIAN_FRONTEND: noninteractive
       when: ansible_os_family == 'Debian'
 
-    - name: copy files
+    - name: Copy files
       ansible.builtin.template:
         src: "templates/postfix_{{ item }}.j2"
-        dest: "{{ postfix_conf_dir }}/{{item}}"
-        trim_blocks: True
+        dest: "{{ postfix_conf_dir }}/{{ item }}"
+        trim_blocks: true
         owner: root
         group: root
         mode: 0644
@@ -33,11 +33,11 @@
         - aliases
         - sender_canonical
 
-    - name: copy passwordfile
+    - name: Copy passwordfile
       ansible.builtin.template:
         src: "templates/postfix_{{ item }}.j2"
         dest: "{{ postfix_conf_dir }}/{{ item }}"
-        trim_blocks: True
+        trim_blocks: true
         owner: root
         group: root
         mode: 0600
@@ -45,22 +45,23 @@
       with_items:
         - sasl_password
 
-    - name: create hash DBs
-      ansible.builtin.shell: "/usr/sbin/postmap {{ postfix_conf_dir }}/{{ item }}"
+    - name: Create hash DBs
+      ansible.builtin.command:
+        cmd: "/usr/sbin/postmap {{ postfix_conf_dir }}/{{ item }}"
       with_items:
         - main.cf
         - aliases
         - sender_canonical
         - sasl_password
       notify: recreate DBs
-      when: postfix_config_result.changed 
+      when: postfix_config_result.changed
 
-    - name: ensure postfix is running
+    - name: Ensure postfix is running
       ansible.builtin.service: name=postfix state=restarted enabled=yes
       when: postfix_config_result.changed
 
-    - name: send testmail
+    - name: Send testmail
       ansible.builtin.shell: echo "Dies ist ein Testmail von {{ ansible_fqdn }}" | mail -s "Testbetreff" vault_postfix.admin_user
       when: postfix_config_result.changed
-  when: vault_postfix.postfix_smtp_relay_host is defined and vault_postfix.postfix_smtp_relay_host|length>0
+  when: vault_postfix.postfix_smtp_relay_host is defined and vault_postfix.postfix_smtp_relay_host | length > 0
 ...

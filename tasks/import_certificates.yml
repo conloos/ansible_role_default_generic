@@ -1,5 +1,5 @@
 ---
-- name: copy Certificates as zip in local certificate store
+- name: Copy Certificates as zip in local certificate store
   block:
     - name: Create temp directory for Certificates
       ansible.builtin.tempfile:
@@ -17,16 +17,16 @@
       ansible.builtin.unarchive:
         src: "{{ tempfilepath.path }}/crt.zip"
         dest: /usr/local/share/ca-certificates
-        remote_src: True
+        remote_src: true
 
-    - name: update-ca-certificates
-      ansible.builtin.shell:
+    - name: Update-ca-certificates  # noqa no-changed-when
+      ansible.builtin.command:
         cmd: "/usr/sbin/update-ca-certificates"
 
   always:
-    - name: cleanup temp
+    - name: Cleanup temp
       ansible.builtin.file:
         path: "{{ tempfilepath.path }}"
         state: absent
-  when: crt_zip_download_url is defined and crt_zip_download_url|length>0
+  when: crt_zip_download_url is defined and crt_zip_download_url | length > 0
 ...

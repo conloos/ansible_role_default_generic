@@ -1,9 +1,9 @@
 ---
-- name: ensure basic packages installed on linux
+- name: Ensure basic packages installed on linux
   ansible.builtin.apt:
     name: '{{ item.src }}'
     state: present
-    update_cache: True
+    update_cache: true
   register: apt_status
   until: apt_status is success
   delay: 6

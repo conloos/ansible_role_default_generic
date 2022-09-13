@@ -40,11 +40,11 @@ argument_specs:
         description: URL to the Zip of Certificates to import.
       acme_ca_url:
         type: str
-        default: False
+        default: false
         description: URL to the small step CA.
       acme_ca_fingerprint:
         type: str
-        default: False
+        default: false
         description: Fingerprint of the CA root cert
       acme_step_acme_cert_ca_provisioner:
         type: str
@@ -52,8 +52,11 @@ argument_specs:
         description: Name of the default provisioner.
       acme_skip_cert_if_ca_down:
         type: bool
-        default: False
-        description: If the CA is down, no certificate can be issued. This switch can be used to specify whether a warning is issued and the role continues anyway, or whether the run is aborted. 
+        default: false
+        description:
+          If the CA is down, no certificate can be issued.
+          This switch can be used to specify whether a warning is issued and the role continues anyway,
+          or whether the run is aborted.
       acme_tls_cert_certfile:
         type: path
         default: "/etc/ssl/{{ cloudinit_fqdn }}.crt"

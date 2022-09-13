@@ -29,28 +29,28 @@
     state: present
     line: "UsePrivilegeSeparation sandbox"
 
-- name: set AllowGroups
+- name: Set AllowGroups
   # grupnames with whitspaces are supported´
   # add "adm" group by default so every user of group "adm" is allowed to connect
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
     line: "AllowGroups adm {{ sshd_allowgroups | map('quote') | join(' ') }}"
-  when: sshd_allowgroups is defined and sshd_allowgroups|length>0
+  when: sshd_allowgroups is defined and sshd_allowgroups | length > 0
 
-- name: restart services
+- name: Restart services
   block:
-  - name: Populate service facts
-    ansible.builtin.service_facts:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
 
-  - name: Restart sshd
-    ansible.builtin.systemd:
-      name: "{{ item }}"
-      state: restarted
-      enabled: yes
-      masked: no
-      daemon_reload: yes
-    when: "item in services"
-    with_items:
-      - sshd.service
+    - name: Restart sshd
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: restarted
+        enabled: true
+        masked: false
+        daemon_reload: true
+      when: "item in services"
+      with_items:
+        - sshd.service
 ...

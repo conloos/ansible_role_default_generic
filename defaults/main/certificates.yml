@@ -1,6 +1,6 @@
 ---
 cloudinit_fqdn: "{{ hostvars['localhost']['cloudinit_fqdn'] }}"
-acme_skip_cert_if_ca_down: False
+acme_skip_cert_if_ca_down: false
 
 # maxhoesel.smallstep.step_bootstrap_host- stuff
 acme_tls_cert_webroot_path: ""

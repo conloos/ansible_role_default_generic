@@ -1,6 +1,6 @@
 ---
 - name: Run step_acme_cert
-  include_role:
+  ansible.builtin.include_role:
     name: maxhoesel.smallstep.step_acme_cert
   vars:
     step_acme_cert_certfile: "{{ acme_tls_cert_certfile }}"
@@ -9,4 +9,5 @@
     step_acme_cert_contact: "{{ acme_tls_cert_contact }}"
     step_acme_cert_renewal_reload_services: "{{ acme_tls_cert_reload_services }}"
     step_acme_cert_ca_provisioner: "{{ acme_provisioner }}"
-  when: acme_fqdn is defined and acme_fqdn|length>0
+  when: acme_fqdn is defined and acme_fqdn | length > 0
+...

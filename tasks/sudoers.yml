@@ -1,23 +1,23 @@
 ---
-- name: add sudo users
+- name: Add sudo users
   community.general.sudoers:
     name: "{{ item }}"
     state: present
     user: "{{ item }}"
-    nopassword: no
+    nopassword: false
     runas: ALL
     commands: ALL
   with_items: "{{ sudo_users }}"
-  when: sudo_users is defined and sudo_users|length>0
+  when: sudo_users is defined and sudo_users | length > 0
 
-- name: add sudo groups
+- name: Add sudo groups
   community.general.sudoers:
     name: "{{ item }}"
     state: present
     group: "{{ item }}"
-    nopassword: no
+    nopassword: false
     runas: ALL
     commands: ALL
   with_items: "{{ sudo_groups }}"
-  when: sudo_groups is defined and sudo_groups|length>0
+  when: sudo_groups is defined and sudo_groups | length > 0
 ...

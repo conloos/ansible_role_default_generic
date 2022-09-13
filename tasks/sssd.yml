@@ -1,10 +1,10 @@
 ---
-- name: install packages sssd
+- name: Install packages sssd
   # packagelist from '~# realm -v discover'
   ansible.builtin.apt:
     name: '{{ item }}'
     state: present
-    update_cache: True
+    update_cache: true
   register: apt_status
   until: apt_status is success
   delay: 6
@@ -23,56 +23,56 @@
   when: ansible_os_family == 'Debian'
 
 
-- name: autodiscover realm if not provided
+- name: Autodiscover realm if not provided
   # discover realm if not provided
   # The discovery didn't work well ubuntu < 22.04, because differend backports from fedora
   block:
-    - name: discover realm
-      ansible.builtin.shell:
+    - name: Discover realm
+      ansible.builtin.command:
         cmd: "/usr/sbin/realm discover"
-      changed_when: False
+      changed_when: false
       register: discovered_realm
 
-    - name: display discovered realm
+    - name: Display discovered realm
       ansible.builtin.debug:
-        msg: "Discovered REALM: {{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=True) | trim | split(' ') | last }}"
+        msg: "Discovered REALM: {{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=true) | trim | split(' ') | last }}"
 
-    - name: set discovered realm
+    - name: Set discovered realm
       ansible.builtin.set_fact:
-        realm: "{{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=True) | trim | split(' ') | last }}"
+        realm: "{{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=true) | trim | split(' ') | last }}"
   when: realm is not defined
 
-- name: unjoin if system allready joined
+- name: Unjoin if system allready joined
   # only unjoin if AD Admin user and PW present
   block:
-    - name: check if server is joined
-      ansible.builtin.shell:
+    - name: Check if server is joined
+      ansible.builtin.command:
         cmd: /usr/sbin/realm list
-      changed_when: False
+      changed_when: false
       register: join_check_output
 
-    - name: "leave realm: {{ realm }}"
-      ansible.builtin.shell:
+    - name: Leave realm {{ realm }}
+      ansible.builtin.command:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm leave -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: True
-      when:  join_check_output.stdout | length > 0
-  when: vault_AD.administrator_user is defined and vault_AD.administrator_user|length>0
+      no_log: true
+      when: join_check_output.stdout | length > 0
+  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
 
 - name: Join domain an configure sssd
   block:
-    - name: "join realm: {{ realm }} without sssd_computerou"
-      ansible.builtin.shell:
+    - name: Join realm {{ realm }} without sssd_computerou
+      ansible.builtin.command:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: True
+      no_log: true
       when: sssd_computerou is not defined or sssd_computerou | length == 0
 
-    - name: "join realm: {{ realm }} with sssd_computerou"
-      ansible.builtin.shell:
-        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: True
+    - name: Join realm {{ realm }} with sssd_computerou
+      ansible.builtin.command:
+        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
+      no_log: true
       when: sssd_computerou is defined and sssd_computerou | length > 0
 
-    - name: copy sssd.conf
+    - name: Copy sssd.conf
       ansible.builtin.template:
         src: sssd.conf.j2
         dest: /etc/sssd/sssd.conf
@@ -80,46 +80,46 @@
         group: root
         mode: '0600'
 
-    - name: enable pam mkhomedir
-      ansible.builtin.shell:
-        cmd: pam-auth-update --enable mkhomedir
-  
+    - name: Enable pam mkhomedir  # noqa no-changed-when
+      ansible.builtin.command:
+        cmd: "pam-auth-update --enable mkhomedir"
+
     - name: Set the users and groups who are allowed to log on to the system.
       block:
-        - name: deny all users
-          ansible.builtin.shell:
+        - name: Deny all users  # noqa no-changed-when
+          ansible.builtin.command:
             cmd: "/usr/sbin/realm deny --all"
 
-        - name: add permitted user
+        - name: Add permitted user
           # usernames with whitespaces are supported
-          ansible.builtin.shell:
+          ansible.builtin.command:
             cmd: "/usr/sbin/realm permit '{{ item }}'"
           with_items: "{{ sssd_permitted_users }}"
-          when: sssd_permitted_users is defined and sssd_permitted_users|length>0
+          when: sssd_permitted_users is defined and sssd_permitted_users | length > 0
 
-        - name: add permitted groups
+        - name: Add permitted groups
           # groups with whitespaces are supported
-          ansible.builtin.shell:
+          ansible.builtin.command:
             cmd: "/usr/sbin/realm permit -g '{{ item }}'"
           with_items: "{{ sssd_permitted_groups }}"
-          when: sssd_permitted_groups is defined and sssd_permitted_groups|length>0
-      when: sssd_permitted_users is defined and sssd_permitted_users|length>0 or sssd_permitted_groups is defined and sssd_permitted_groups|length>0
+          when: sssd_permitted_groups is defined and sssd_permitted_groups | length > 0
+      when: sssd_permitted_users is defined and sssd_permitted_users | length > 0 or sssd_permitted_groups is defined and sssd_permitted_groups | length > 0
   # The whole block shoud only star if a AD Admin User and pw is present
-  when: vault_AD.administrator_user is defined and vault_AD.administrator_user|length>0
+  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
 
-- name: restart services
+- name: Restart services
   block:
-  - name: Populate service facts
-    ansible.builtin.service_facts:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
 
-  - name: Restart sssd
-    ansible.builtin.systemd:
-      name: '{{ item }}'
-      state: restarted
-      enabled: yes
-      masked: no
-      daemon_reload: yes
-    when: "item in services"
-    with_items:
-      - sssd.service
+    - name: Restart sssd
+      ansible.builtin.systemd:
+        name: '{{ item }}'
+        state: restarted
+        enabled: true
+        masked: false
+        daemon_reload: true
+      when: "item in services"
+      with_items:
+        - sssd.service
 ...

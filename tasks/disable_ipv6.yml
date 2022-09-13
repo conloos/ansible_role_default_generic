@@ -1,12 +1,12 @@
 ---
-- name: disable ipv6 permanent
+- name: Disable ipv6 permanent
   ansible.builtin.sysctl:
     sysctl_file: /etc/sysctl.conf
-    name: '{{ item }}' 
+    name: '{{ item }}'
     value: '1'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
+    reload: true
   loop:
     - net.ipv6.conf.all.disable_ipv6
     - net.ipv6.conf.default.disable_ipv6
