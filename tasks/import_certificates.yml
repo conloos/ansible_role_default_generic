@@ -11,6 +11,7 @@
       ansible.builtin.get_url:
         url: "{{ crt_zip_download_url }}"
         dest: "{{ tempfilepath.path }}/crt.zip"
+        validate_certs: false
         mode: '0400'
 
     - name: Extract /usr/local/share/ca-certificates
