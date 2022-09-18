@@ -26,6 +26,7 @@
       ansible.builtin.get_url:
         url: "{{ ca_certificates }}"
         dest: "{{ tempfilepath.path }}/crt.zip"
+        validate_certs: false
         mode: '0400'
       when:
         - ca_certificates is defined 
