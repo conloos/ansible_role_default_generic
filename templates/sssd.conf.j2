@@ -7,7 +7,7 @@
 
 [sssd]
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=886483
-  services = nss, pam, sudo
+  services = nss, pam, sudo, pac
   config_file_version = 2
   domains = {{ realm | lower }}
   default_domain_suffix = {{ realm }}
@@ -40,3 +40,20 @@
   dyndns_update_ptr = True
   dyndns_ttl = 3600
   krb5_validate = True
+
+# Group Filter
+# ad_access_filter = (memberOf=CN=ZD-IT-ZDSRV373-SSH-Administrators,OU=Linux Administrators,OU=Admins,OU=Gruppen,OU=HELIOS-IT-Service,DC=helios-kliniken,DC=de) # Todo
+
+# AD Settings
+# subdomain_inherit = ignore_group_members, ldap_purge_cache_timeout
+# ignore_group_members = True # FixMe: Workaround by to much AD groups to dont lookup groups
+# ldap_purge_cache_timeout = 0
+# case_sensitive = false
+ 
+# AD Ranges
+# ldap_idmap_range_min  =      200000
+# ldap_idmap_range_max  =  2100200000
+# ldap_idmap_range_size =   100000000
+ 
+# only IPv4
+lookup_family_order=ipv4_only
