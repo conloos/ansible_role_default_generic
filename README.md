@@ -18,7 +18,10 @@ All configurations are held atomically via their own files.
 ### import certificates
 | variable | required | description | example |
 | -------- | ---------| ----------- | ------- |
-| crt_zip_download_url | no | Import certificates as zip and install in system certificate store. | |
+| ca_certificates | no | Path to the certificates. Supported are URLs (with one zip-file, list of certificates or one certificate) or local stored (zip-file, list of certificates or one certificate). | https://test.com/cert.zip or /full/path/to/cert |
+| ca_cert_destination | false | Path where additional ca certificates are stored to extend the system certifikate-store. | **default("/usr/local/share/ca-certificates")** |
+
+
 ### Network Time - timesyncd
 | variable | required | description |
 | -------- | ---------| ----------- |

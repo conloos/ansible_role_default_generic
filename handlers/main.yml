@@ -6,3 +6,16 @@
 - name: Recreate DBs
   ansible.builtin.debug:
     msg: Recreating DB Hashes
+
+- name: unzip and copy
+  ansible.builtin.unarchive:
+    src: "{{ tempfilepath.path }}/crt.zip"
+    dest: "{{ ca_cert_destination }}"
+    remote_src: true
+  notify:
+    - update trusted ca debian
+
+- name: update trusted ca debian  # noqa no-changed-when
+  ansible.builtin.command:
+    cmd: "/usr/sbin/update-ca-certificates"
+  when: ansible_os_family == "Debian"
