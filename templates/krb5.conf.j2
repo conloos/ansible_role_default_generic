@@ -1,28 +1,28 @@
 # Ansible manageged. Local modifactions may overwritten.
 
 [logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
+  default = FILE:/var/log/krb5libs.log
+  kdc = FILE:/var/log/krb5kdc.log
+  admin_server = FILE:/var/log/kadmind.log
  
 [libdefaults]
- # default_realm = EXAMPLE.COM
- dns_lookup_realm = true
- dns_lookup_kdc = true
- ticket_lifetime = 24h
- renew_lifetime = 7d
- forwardable = true
- rdns = false
- default_ccache_name = KEYRING:persistent:%{uid}
+  default_realm = {{ realm }}
+  dns_lookup_realm = true
+  dns_lookup_kdc = true
+  ticket_lifetime = 24h
+  renew_lifetime = 7d
+  forwardable = true
+  rdns = false
+  default_ccache_name = KEYRING:persistent:%{uid}
  
 [realms]
-# EXAMPLE.COM = {
+#  {{ realm }}= {
 #  kdc = kerberos.example.com
 #  admin_server = kerberos.example.com
-# }
+#  }
  
 [domain_realm]
-# .example.com = EXAMPLE.COM
-# example.com = EXAMPLE.COM
+  .{{ realm | lower }} = {{ realm }}
+  {{ realm | lower }} = {{ realm }}
 
    

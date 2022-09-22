@@ -29,16 +29,16 @@
         validate_certs: false
         mode: '0400'
       when:
-        - ca_certificates is defined 
-        - ca_certificates | lenggth > 0 
-        - (ca_certificates match("http://") or ca_certificates match("https://")) # match succeeds if it finds the pattern at the beginning of the string
+        - ca_certificates is defined
+        - ca_certificates | length > 0
+        - ca_certificates is match("http://") or ca_certificates is match("https://") # match succeeds if it finds the pattern at the beginning of the string
         - ca_certificates is search(".zip")
       notify:
-        - unzip and copy
+        - Import_certificates - unzip and copy
 
     # If "http://" is not in "ca_certificates" and the filetype is zip. -> local-zip-file
     # The second step in this case is to decompress the zip.
-    - name: Copy certificates from local absolute-path
+    - name: Copy certificates-zip from local absolute-path
       ansible.builtin.copy:
         src: "{{ item.key }}"
         dest: "{{ tempfilepath.path }}/crt.zip"
@@ -46,13 +46,13 @@
       with_items:
         - { "key": "{{ ca_certificates }}" }
       when:
-        - ca_certificates is defined 
-        - ca_certificates | lenggth > 0
-        - (ca_certificates not match("http://") or ca_certificates not match("https://"))
+        - ca_certificates is defined
+        - ca_certificates | length > 0
+        - ca_certificates is not match("http://") and ca_certificates is not match("https://")
         - ca_certificates is search(".zip")
         - (ca_certificates is string) # https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#type-tests
       notify:
-        - unzip and copy
+        - Import_certificates - unzip and copy
 
     # If "http://" in "ca_certificates" and the vartype of "ca_certificates" is _list_ or _string_. -> download
     # The certificates are copied directly to the target directory.
@@ -64,12 +64,15 @@
       with_items:
         - { "key": "{{ ca_certificates }}" }
       when:
-        - ca_certificates is defined 
-        - ca_certificates | lenggth > 0 
-        - (ca_certificates match("http://") or ca_certificates match("https://")) # match succeeds if it finds the pattern at the beginning of the string
-        - (ca_certificates is string) or (ca_certificates is not string and ca_certificates is not mapping and ca_certificates is iterable) # https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#type-tests
+        - ca_certificates is defined
+        - ca_certificates | length > 0
+        # match succeeds if it finds the pattern at the beginning of the string
+        - ca_certificates is match("http://") or ca_certificates is match("https://")
+        - ca_certificates is not search(".zip")
+        # https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#type-tests
+        - (ca_certificates is string) or (ca_certificates is not string and ca_certificates is not mapping and ca_certificates is iterable)
       notify:
-        - update trusted ca debian
+        - Import_certificates - update trusted ca debian
 
     # If "http://" is not in "ca_certificates" and the vartype of "ca_certificates" is _list_ or _string_. -> local certificates
     # The certificates are copied directly to the target directory.
@@ -81,17 +84,13 @@
       with_items:
         - { "key": "{{ ca_certificates }}" }
       when:
-        - ca_certificates is defined 
-        - ca_certificates | lenggth > 0
-        - (ca_certificates not match("http://") or ca_certificates not match("https://"))
-        - (ca_certificates is string) or (ca_certificates is not string and ca_certificates is not mapping and ca_certificates is iterable) # https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#type-tests
+        - ca_certificates is defined
+        - ca_certificates | length > 0
+        - ca_certificates is not match("http://") and ca_certificates is not match("https://")
+        - ca_certificates is not search(".zip")
+        # https://docs.ansible.com/ansible/latest/user_guide/playbooks_tests.html#type-tests
+        - (ca_certificates is string) or (ca_certificates is not string and ca_certificates is not mapping and ca_certificates is iterable)
       notify:
-        - update trusted ca debian
-
-  always:
-    - name: Cleanup temp
-      ansible.builtin.file:
-        path: "{{ tempfilepath.path }}"
-        state: absent
+        - Import_certificates - update trusted ca debian
   when: ca_certificates is defined and ca_certificates | length > 0
 ...

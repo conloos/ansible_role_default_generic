@@ -79,19 +79,18 @@ argument_specs:
         default: ""
         description: Email-address for the cert contact.
       ca_certificates:
-        type: list or str
         description:
-          Path to the certificates. 
+          Path to the certificates.
           Supported are URLs with
-            * one zip-file, 
-            * list of certificates or 
-            * one certificate or 
-          local stored 
-            * zip-file, 
-            * list of certificates or 
+            * one zip-file,
+            * list of certificates or
+            * one certificate or
+          local stored
+            * zip-file,
+            * list of certificates or
             one certificate.
       ca_cert_destination:
         type: str
         default: "/usr/local/share/ca-certificates"
-        decription: Path where additional ca certificates are stored to extend the system certifikate-store.
+        description: Path where additional ca certificates are stored to extend the system certifikate-store.
 ...

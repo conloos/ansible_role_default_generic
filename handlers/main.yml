@@ -7,15 +7,30 @@
   ansible.builtin.debug:
     msg: Recreating DB Hashes
 
-- name: unzip and copy
+- name: Import_certificates - unzip and copy
   ansible.builtin.unarchive:
     src: "{{ tempfilepath.path }}/crt.zip"
     dest: "{{ ca_cert_destination }}"
     remote_src: true
   notify:
-    - update trusted ca debian
+    - Update trusted ca debian
 
-- name: update trusted ca debian  # noqa no-changed-when
+- name: Import_certificates - Update trusted ca debian  # noqa no-changed-when
   ansible.builtin.command:
     cmd: "/usr/sbin/update-ca-certificates"
   when: ansible_os_family == "Debian"
+  notify:
+    - Cleanup temp
+
+- name: Import_certificates - Cleanup temp
+  ansible.builtin.file:
+    path: "{{ tempfilepath.path }}"
+    state: absent
+
+- name: Adcli without sssd_computerou
+  ansible.builtin.command:
+    cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/adcli join --domain-realm={{ realm }} --stdin-password"
+
+- name: Adcli with sssd_computerou
+  ansible.builtin.command:
+    cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/adcli join --domain-realm={{ realm }} --domain-ou={{ sssd_computerou }} --stdin-password"  # noqa yaml

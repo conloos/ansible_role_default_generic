@@ -2,7 +2,7 @@
 - name: Configure Postfix
   block:
     - name: Install postfix
-      notify: installed messages
+      notify: Installed messages
       ansible.builtin.apt:
         name: "{{ item }}"
         state: present
@@ -53,7 +53,7 @@
         - aliases
         - sender_canonical
         - sasl_password
-      notify: recreate DBs
+      notify: Recreate DBs
       when: postfix_config_result.changed
 
     - name: Ensure postfix is running

@@ -52,24 +52,25 @@
       register: join_check_output
 
     - name: Leave realm {{ realm }}
-      ansible.builtin.command:
+      ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm leave -U {{ vault_AD.administrator_user }} {{ realm }}"
       no_log: true
       when: join_check_output.stdout | length > 0
   when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
 
 - name: Join domain an configure sssd
+  # realm join int generating a krb5.keytab
   block:
     - name: Join realm {{ realm }} without sssd_computerou
-      ansible.builtin.command:
-        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: true
+      ansible.builtin.shell:
+        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --membership-software=adcli --client-software=sssd -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
+      # no_log: true
       when: sssd_computerou is not defined or sssd_computerou | length == 0
 
     - name: Join realm {{ realm }} with sssd_computerou
-      ansible.builtin.command:
-        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
-      no_log: true
+      ansible.builtin.shell:
+        cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --membership-software=adcli --client-software=sssd --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
+      # no_log: true
       when: sssd_computerou is defined and sssd_computerou | length > 0
 
     - name: Copy sssd.conf
