@@ -13,14 +13,14 @@
     dest: "{{ ca_cert_destination }}"
     remote_src: true
   notify:
-    - Update trusted ca debian
+    - Import_certificates - Update trusted ca debian
 
 - name: Import_certificates - Update trusted ca debian  # noqa no-changed-when
   ansible.builtin.command:
     cmd: "/usr/sbin/update-ca-certificates"
   when: ansible_os_family == "Debian"
   notify:
-    - Cleanup temp
+    - Import_certificates - Cleanup temp
 
 - name: Import_certificates - Cleanup temp
   ansible.builtin.file:

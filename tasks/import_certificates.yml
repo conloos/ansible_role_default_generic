@@ -40,11 +40,10 @@
     # The second step in this case is to decompress the zip.
     - name: Copy certificates-zip from local absolute-path
       ansible.builtin.copy:
-        src: "{{ item.key }}"
+        src: "{{ item }}"
         dest: "{{ tempfilepath.path }}/crt.zip"
         mode: '0600'
-      with_items:
-        - { "key": "{{ ca_certificates }}" }
+      with_items: "{{ ca_certificates }}"
       when:
         - ca_certificates is defined
         - ca_certificates | length > 0
@@ -58,11 +57,10 @@
     # The certificates are copied directly to the target directory.
     - name: Download certificates from URL
       ansible.builtin.get_url:
-        url: "{{ item.key }}"
+        url: "{{ item }}"
         dest: "{{ ca_cert_destination }}"
         mode: '0644'
-      with_items:
-        - { "key": "{{ ca_certificates }}" }
+      with_items: "{{ ca_certificates }}"
       when:
         - ca_certificates is defined
         - ca_certificates | length > 0
@@ -78,11 +76,10 @@
     # The certificates are copied directly to the target directory.
     - name: Copy certificates from local absolute-path
       ansible.builtin.copy:
-        src: "{{ item.key }}"
+        src: "{{ item }}"
         dest: "{{ ca_cert_destination }}"
         mode: '0644'
-      with_items:
-        - { "key": "{{ ca_certificates }}" }
+      with_items: "{{ ca_certificates }}"
       when:
         - ca_certificates is defined
         - ca_certificates | length > 0
