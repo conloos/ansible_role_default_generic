@@ -22,10 +22,10 @@
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'
 
-
 - name: Autodiscover realm if not provided
   # discover realm if not provided
   # The discovery didn't work well ubuntu < 22.04, because differend backports from fedora
+  when: realm is not defined
   block:
     - name: Discover realm
       ansible.builtin.command:
@@ -40,10 +40,10 @@
     - name: Set discovered realm
       ansible.builtin.set_fact:
         realm: "{{ discovered_realm.stdout | regex_search('.*realm-name:.*', ignorecase=true) | trim | split(' ') | last }}"
-  when: realm is not defined
 
 - name: Unjoin if system allready joined
   # only unjoin if AD Admin user and PW present
+  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
   block:
     - name: Check if server is joined
       ansible.builtin.command:
@@ -54,24 +54,24 @@
     - name: Leave realm {{ realm }}
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm leave -U {{ vault_AD.administrator_user }} {{ realm }}"
-      no_log: true
+      no_log: false # fixme
       when: join_check_output.stdout | length > 0
-  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
 
 - name: Join domain an configure sssd
-  # realm join int generating a krb5.keytab
+  # The whole block shoud only start if a AD Admin User and pw is present
+  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
   block:
     - name: Join realm {{ realm }} without sssd_computerou
+      when: sssd_computerou is not defined or sssd_computerou | length == 0
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --membership-software=adcli --client-software=sssd -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
-      # no_log: true
-      when: sssd_computerou is not defined or sssd_computerou | length == 0
+      no_log: false # fixme
 
     - name: Join realm {{ realm }} with sssd_computerou
+      when: sssd_computerou is defined and sssd_computerou | length > 0
       ansible.builtin.shell:
         cmd: "/usr/bin/echo {{ vault_AD.administrator_password }} | /usr/sbin/realm join --membership-software=adcli --client-software=sssd --computer-ou {{ sssd_computerou }} -U {{ vault_AD.administrator_user }} {{ realm }}"  # noqa yaml
-      # no_log: true
-      when: sssd_computerou is defined and sssd_computerou | length > 0
+      no_log: false # fixme
 
     - name: Copy sssd.conf
       ansible.builtin.template:
@@ -85,28 +85,6 @@
       ansible.builtin.command:
         cmd: "pam-auth-update --enable mkhomedir"
 
-    - name: Set the users and groups who are allowed to log on to the system.
-      block:
-        - name: Deny all users  # noqa no-changed-when
-          ansible.builtin.command:
-            cmd: "/usr/sbin/realm deny --all"
-
-        - name: Add permitted user
-          # usernames with whitespaces are supported
-          ansible.builtin.command:
-            cmd: "/usr/sbin/realm permit '{{ item }}'"
-          with_items: "{{ sssd_permitted_users }}"
-          when: sssd_permitted_users is defined and sssd_permitted_users | length > 0
-
-        - name: Add permitted groups
-          # groups with whitespaces are supported
-          ansible.builtin.command:
-            cmd: "/usr/sbin/realm permit -g '{{ item }}'"
-          with_items: "{{ sssd_permitted_groups }}"
-          when: sssd_permitted_groups is defined and sssd_permitted_groups | length > 0
-      when: sssd_permitted_users is defined and sssd_permitted_users | length > 0 or sssd_permitted_groups is defined and sssd_permitted_groups | length > 0
-  # The whole block shoud only star if a AD Admin User and pw is present
-  when: vault_AD.administrator_user is defined and vault_AD.administrator_user | length > 0
 
 - name: Restart services
   block:

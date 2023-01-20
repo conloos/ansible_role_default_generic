@@ -12,9 +12,9 @@
 
 - name: Add sudo groups
   community.general.sudoers:
-    name: "{{ item }}"
+    name: "{{ item | replace(' ', '^')}}" # Fix visudoers problems in ubuntu 22.10
     state: present
-    group: "{{ item }}"
+    group: "{{ item | replace(' ', '^')}}"
     nopassword: false
     runas: ALL
     commands: ALL

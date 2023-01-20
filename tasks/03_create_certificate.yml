@@ -9,5 +9,8 @@
     step_acme_cert_contact: "{{ acme_tls_cert_contact }}"
     step_acme_cert_renewal_reload_services: "{{ acme_tls_cert_reload_services }}"
     step_acme_cert_ca_provisioner: "{{ acme_provisioner }}"
-  when: acme_fqdn is defined and acme_fqdn | length > 0
+  when: 
+    - step_bootstrap_ca is not defined and not step_bootstrap_ca
+    - acme_fqdn is defined 
+    - acme_fqdn | length > 0
 ...

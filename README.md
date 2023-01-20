@@ -32,8 +32,8 @@ All configurations are held atomically via their own files.
 | -------- | ---------| ----------- | ------- |
 | sssd_computerou | False | LDAP path to the ou where the computerobjects are stored. E.G:  "OU=Linux,OU=Server,DC=Example,DC=com" | |
 | realm | False | Realm to use for join. If none provided, try to autodiscover. | |
-| sssd_permitted_users | False | List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login. | sssd_permitted_users: [john@example.com] |
-| sssd_permitted_groups | False | List of AD groups who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login. | sssd_permitted_groups: [ adm, "domain admins@bodomos.lan"] |
+| permitted_users | False | List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login. | permitted_users: [john@example.com] |
+| permitted_groups | False | List of AD groups who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login. | permitted_groups: [ adm, "domain admins@bodomos.lan"] |
 | vault_AD.administrator_user | True | User to Join Object ||
 | vault_AD.administrator_password | True | Password for the User ||
 

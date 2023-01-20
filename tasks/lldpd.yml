@@ -1,0 +1,40 @@
+---
+- name: Install lldpd package
+  ansible.builtin.apt:
+    name: '{{ item.src }}'
+    state: present
+    update_cache: true
+  register: apt_status
+  until: apt_status is success
+  delay: 6
+  retries: 10
+  with_items:
+    - { src: "lldpd" }
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: ansible_os_family == 'Debian'
+
+- name: Copy lldpd config 
+  ansible.builtin.copy:
+    src: lldpd
+    dest: /etc/default/lldpd
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Restart lldpd services
+  block:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Restart lldpd
+      ansible.builtin.systemd:
+        name: '{{ item }}'
+        state: restarted
+        enabled: true
+        masked: false
+        daemon_reload: true
+      when: "item in services"
+      with_items:
+        - lldpd.service
+...

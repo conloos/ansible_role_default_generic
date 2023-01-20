@@ -3,11 +3,14 @@ argument_specs:
   main:
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html#role-argument-validation
     # https://docs.ansible.com/ansible/latest/dev_guide/developing_program_flow_modules.html#argument-spec
-    short_description: Role for the basic - shared configuration of Servers ans Clients.
-    description: Role for the basic - shared configuration of Servers ans Clients.
+    short_description: Role for the basic configuration - shared configuration of Servers and Clients.
+    description: Role for the basic configuration - shared configuration of Servers and Clients.
     author:
       - Frank Dornheim
     options:
+      step_bootstrap_ca:
+        type: bool
+        description: If a ca is bootstrapped the system can't get the normal client environemt and certs.
       cloudinit_fqdn:
         type: str
         required: true
@@ -20,10 +23,10 @@ argument_specs:
         type: str
         default: "pool.ntp.org"
         description: Set NTP-Server
-      sssd_permitted_users:
+      permitted_users:
         type: str
         description: List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login.
-      sssd_permitted_groups:
+      permitted_groups:
         type: str
         description: List of AD users who are allowed to log in. If no users or groups are defined, **all** AD accounts are allowed to login.
       sudo_users:

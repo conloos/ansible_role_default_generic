@@ -18,14 +18,14 @@
       ansible.builtin.tempfile:
         state: directory
         suffix: temp
-      register: tempfilepath
+      register: tempfilepath_cert
 
     # If "http://" in "ca_certificates" and the filetype is zip -> download.
     # The second step in this case is to decompress the zip.
     - name: Download certificate-zip from URL
       ansible.builtin.get_url:
         url: "{{ ca_certificates }}"
-        dest: "{{ tempfilepath.path }}/crt.zip"
+        dest: "{{ tempfilepath_cert.path }}/crt.zip"
         validate_certs: false
         mode: '0400'
       when:
@@ -41,7 +41,7 @@
     - name: Copy certificates-zip from local absolute-path
       ansible.builtin.copy:
         src: "{{ item }}"
-        dest: "{{ tempfilepath.path }}/crt.zip"
+        dest: "{{ tempfilepath_cert.path }}/crt.zip"
         mode: '0600'
       with_items: "{{ ca_certificates }}"
       when:
@@ -55,7 +55,7 @@
 
     # If "http://" in "ca_certificates" and the vartype of "ca_certificates" is _list_ or _string_. -> download
     # The certificates are copied directly to the target directory.
-    - name: Download certificates from URL
+    - name: Download list of certificates from URL
       ansible.builtin.get_url:
         url: "{{ item }}"
         dest: "{{ ca_cert_destination }}"
@@ -74,7 +74,7 @@
 
     # If "http://" is not in "ca_certificates" and the vartype of "ca_certificates" is _list_ or _string_. -> local certificates
     # The certificates are copied directly to the target directory.
-    - name: Copy certificates from local absolute-path
+    - name: Copy list of certificates from local absolute-path
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: "{{ ca_cert_destination }}"

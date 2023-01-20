@@ -52,5 +52,5 @@
         daemon_reload: true
       when: "item in services"
       with_items:
-        - sshd.service
+        - ssh.service
 ...

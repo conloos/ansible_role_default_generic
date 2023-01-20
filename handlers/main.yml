@@ -9,7 +9,7 @@
 
 - name: Import_certificates - unzip and copy
   ansible.builtin.unarchive:
-    src: "{{ tempfilepath.path }}/crt.zip"
+    src: "{{ tempfilepath_cert.path }}/crt.zip"
     dest: "{{ ca_cert_destination }}"
     remote_src: true
   notify:
@@ -24,7 +24,7 @@
 
 - name: Import_certificates - Cleanup temp
   ansible.builtin.file:
-    path: "{{ tempfilepath.path }}"
+    path: "{{ tempfilepath_cert.path }}"
     state: absent
 
 - name: Adcli without sssd_computerou

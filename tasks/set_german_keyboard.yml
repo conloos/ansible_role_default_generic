@@ -1,0 +1,12 @@
+---
+- name: Change Keyboard Layouot
+  ansible.builtin.lineinfile:
+    path: "/etc/default/keyboard"
+    search_string: "XKBLAYOUT="
+    line: 'XKBLAYOUT="de"'
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == 'Debian'
+...

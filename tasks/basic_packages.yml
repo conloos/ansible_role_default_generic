@@ -1,7 +1,7 @@
 ---
 - name: Ensure basic packages installed on linux
   ansible.builtin.apt:
-    name: '{{ item.src }}'
+    name: "{{ item.src }}"
     state: present
     update_cache: true
   register: apt_status
@@ -9,14 +9,14 @@
   delay: 6
   retries: 10
   with_items:
-    - { src: acl }
-    - { src: python-is-python3 } # added by switching to ubuntu 22.04
-    - { src: clamav }
-    - { src: clamav-daemon }
-    - { src: unzip }
-    - { src: vim }
-    - { src: open-vm-tools, when: ansible_virtualization_type is defined and ansible_virtualization_type == "VMware" } # if pattform is esx
-    - { src: open-vm-tools-sdmp, when: ansible_virtualization_type is defined and ansible_virtualization_type == "VMware" } # if pattform is esx
+    - { src: "acl" }
+    - { src: "python-is-python3" } # added by switching to ubuntu 22.04
+    - { src: "clamav" }
+    - { src: "clamav-daemon" }
+    - { src: "unzip" }
+    - { src: "vim" }
+    - { src: "open-vm-tools", when: ansible_virtualization_type is defined and ansible_virtualization_type == "VMware" } # if pattform is esx
+    - { src: "open-vm-tools-sdmp", when: ansible_virtualization_type is defined and ansible_virtualization_type == "VMware" } # if pattform is esx
   environment:
     DEBIAN_FRONTEND: noninteractive
   when: ansible_os_family == 'Debian'

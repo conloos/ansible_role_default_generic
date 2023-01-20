@@ -1,16 +1,16 @@
 # Ansible manageged. Local modifactions may overwritten.
 
-[nss]
-  filter_groups = root
-  filter_users = root
-  reconnection_retries = 3
-
 [sssd]
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=886483
   services = nss, pam, sudo, pac
   config_file_version = 2
   domains = {{ realm | lower }}
   default_domain_suffix = {{ realm }}
+
+[nss]
+  filter_groups = root
+  filter_users = root
+  reconnection_retries = 3
 
 [pam]
   reconnection_retries = 3
@@ -23,50 +23,26 @@
   sudo_provider = ad
   access_provider = ad
   auth_provider = ad
+{% if sssd_permitted_ldap_groups is defined and sssd_permitted_ldap_groups | length >= 0 %}
+  ad_access_filter = (|(memberOf={{ sssd_permitted_ldap_groups | join(')(memberOf=') }}))
+{% endif %}
   default_shell = /bin/bash
   ad_domain = {{ realm | lower }}
   chpass_provider = ad
   ldap_schema = ad
-  krb5_store_password_if_offline = True
-  cache_credentials = True
+  krb5_store_password_if_offline = true
+  cache_credentials = true
   krb5_realm = {{ realm }}
   realmd_tags = manages-system joined-with-adcli
   fallback_homedir = /home/%u@%d
-  use_fully_qualified_names = True
-  ldap_id_mapping = True
+  use_fully_qualified_names = true
+  ldap_id_mapping = false
   ad_gpo_access_control = permissive
-  dyndns_update = True
+  dyndns_update = true
   dyndns_refresh_interval = 43200
-  dyndns_update_ptr = True
+  dyndns_update_ptr = true
   dyndns_ttl = 3600
-  krb5_validate = True
-
-# Auth filtering -> https://sssd.io/design-pages/active_directory_access_control.html
-#
-# Simple Filter -> used by "auth_provider = simple"
-# simple_allow_users = <USERNAME>
-# simple_allow_groups = <LOCAL GROUP NAME>, <DOMAIN Group NAME>@<REALM>, <DOMAIN Group NAME>@<REALM>
-#
-# Group Filter -> used by "auth_provider = ad" 
-# ad_access_filter = (memberOf=CN=ZD-IT-ZDSRV373-SSH-Administrators,OU=Linux Administrators,OU=Admins,OU=Gruppen,OU=HELIOS-IT-Service,DC=helios-kliniken,DC=de) # Todo
-
-# AD Settings
-# subdomain_inherit = ignore_group_members, ldap_purge_cache_timeout
-# ignore_group_members = True # FixMe: Workaround by to much AD groups to dont lookup groups
-# ldap_purge_cache_timeout = 0
-# case_sensitive = false
- 
-# AD Ranges
-# ldap_idmap_range_min  =      200000
-# ldap_idmap_range_max  =  2100200000
-# ldap_idmap_range_size =   100000000
-
-#
-# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/windows_integration_guide/sssd-dyndns
-# dyndns_update = true
-# dyndns_refresh_interval = 43200
-# dyndns_update_ptr = true
-# dyndns_ttl = 3600
+  krb5_validate = true
 
 # only IPv4
-lookup_family_order=ipv4_only
+lookup_family_order = ipv4_only

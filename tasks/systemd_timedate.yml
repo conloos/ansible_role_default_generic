@@ -1,12 +1,12 @@
 ---
 - name: Check virtualisation  # noqa ignore-errors -> we want to see that in red
+  when: ansible_virtualization_role == "guest"
   ansible.builtin.fail:
     msg: "This system appears to be virtualized, so the time sync may be buggy or not - readily - functional.
           With containers, the time is specified by the host.
           With virtualization, you may need special client programs, such as: vmware tools.
           This task must be completed separately."
   ignore_errors: true
-  when: ansible_virtualization_role == "guest"
 
 - name: Copy timesyncd.conf
   ansible.builtin.template:
